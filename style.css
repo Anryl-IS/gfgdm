@@ -285,6 +285,32 @@ body {
     margin-left: auto;
     margin-right: auto;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-footer {
+    margin-top: auto;
+    padding: 3rem 0 2rem;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+
+.dashboard-footer p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+}
+
+.dashboard-footer strong {
+    color: var(--accent-purple);
+    font-weight: 600;
+}
+
+.copyright {
+    margin-top: 0.5rem;
+    font-size: 0.75rem !important;
+    opacity: 0.5;
 }
 
 .top-bar {
