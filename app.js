@@ -1,4 +1,10 @@
-const CSV_URL = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://docs.google.com/spreadsheets/d/e/2PACX-1vTlWVa7_Fb6Ti-uFli1ThK0q8E1jyHenz6hdYTlNmPq14_icpSzpQmU4vniWpnqXfjpIeZeLz4dLZqp/pub?gid=0&single=true&output=csv&t=' + new Date().getTime());
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlWVa7_Fb6Ti-uFli1ThK0q8E1jyHenz6hdYTlNmPq14_icpSzpQmU4vniWpnqXfjpIeZeLz4dLZqp/pub?gid=0&single=true&output=csv';
+
+const PROXIES = [
+    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&t=${Date.now()}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    url => `https://corsproxy.io/?${encodeURIComponent(url + '&t=' + Date.now())}`
+];
 
 let dashboardData = {
     units: [],
@@ -112,28 +118,47 @@ function setupRefresh() {
 
 async function fetchData() {
     showLoading(true);
-    try {
-        const response = await fetch(CSV_URL);
-        const data = await response.json();
-        const csvText = data.contents;
+    let success = false;
+    let lastError = null;
 
-        Papa.parse(csvText, {
-            complete: (results) => {
-                processCSV(results.data);
-                renderDashboard();
-                showLoading(false);
-                updateSyncTime();
-            },
-            error: (err) => {
-                console.error('Parsing error:', err);
-                showLoading(false);
-                alert('Failed to parse data');
+    for (let i = 0; i < PROXIES.length; i++) {
+        try {
+            console.log(`Trying Proxy ${i + 1}...`);
+            const proxyUrl = PROXIES[i](SHEET_URL);
+            const response = await fetch(proxyUrl);
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            let csvText = '';
+            if (proxyUrl.includes('allorigins.win')) {
+                const data = await response.json();
+                csvText = data.contents;
+            } else {
+                csvText = await response.text();
             }
-        });
-    } catch (error) {
-        console.error('Fetch error:', error);
+
+            if (csvText && csvText.length > 50) {
+                Papa.parse(csvText, {
+                    complete: (results) => {
+                        processCSV(results.data);
+                        renderDashboard();
+                        showLoading(false);
+                        updateSyncTime();
+                    }
+                });
+                success = true;
+                console.log(`Success with Proxy ${i + 1}`);
+                break;
+            }
+        } catch (error) {
+            console.warn(`Proxy ${i + 1} failed`, error);
+            lastError = error;
+        }
+    }
+
+    if (!success) {
         showLoading(false);
-        alert('Failed to fetch data');
+        alert('CORS Error: Unable to fetch data. Please try again later.');
     }
 }
 
