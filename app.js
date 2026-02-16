@@ -1,4 +1,4 @@
-const CSV_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://docs.google.com/spreadsheets/d/e/2PACX-1vTlWVa7_Fb6Ti-uFli1ThK0q8E1jyHenz6hdYTlNmPq14_icpSzpQmU4vniWpnqXfjpIeZeLz4dLZqp/pub?gid=0&single=true&output=csv&t=' + new Date().getTime());
+const CSV_URL = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://docs.google.com/spreadsheets/d/e/2PACX-1vTlWVa7_Fb6Ti-uFli1ThK0q8E1jyHenz6hdYTlNmPq14_icpSzpQmU4vniWpnqXfjpIeZeLz4dLZqp/pub?gid=0&single=true&output=csv&t=' + new Date().getTime());
 
 let dashboardData = {
     units: [],
@@ -114,7 +114,8 @@ async function fetchData() {
     showLoading(true);
     try {
         const response = await fetch(CSV_URL);
-        const csvText = await response.text();
+        const data = await response.json();
+        const csvText = data.contents;
 
         Papa.parse(csvText, {
             complete: (results) => {
