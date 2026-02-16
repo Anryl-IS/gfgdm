@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Gross Analytics Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+
+<body>
+    <div id="login-screen" class="login-overlay">
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="logo-icon">GF</div>
+                <span class="logo-text">Glowing<span>Fortune</span></span>
+            </div>
+            <h2>LDS Gross Reports</h2>
+            <p>Please enter your credentials to access the dashboard</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="login-submit">Login Account</button>
+            </form>
+            <div id="login-error" class="login-error">Invalid username or password.</div>
+        </div>
+    </div>
+
+    <div class="app-container" style="display: none;">
+        <nav class="top-nav">
+            <div class="nav-left">
+                <div class="logo">
+                    <div class="logo-icon">GF</div>
+                    <div class="logo-text-group">
+                        <span class="logo-text">Glowing<span>Fortune</span></span>
+                        <div class="sidebar-subtext">LDS Gross Reports</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-center">
+                <div class="nav-menu">
+                    <a href="#" class="nav-item active" data-tab="overview">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Overview</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="details">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                            <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                        </svg>
+                        <span>Details</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="comparison">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        <span>Comparison</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="nav-right">
+                <div class="sync-info">
+                    <span id="sync-time">Just now</span>
+                </div>
+                <button id="refresh-btn" class="icon-button" title="Sync Data">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+                <button id="logout-btn" class="logout-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="header-info">
+                    <h1>Glowing Fortune OPC</h1>
+                    <p class="subtitle">LDS Daily Gross Tracking Dashboard</p>
+                </div>
+                <div class="header-actions">
+                    <div class="date-range-badge" id="current-range">Feb 02 - Feb 15, 2026</div>
+                </div>
+            </header>
+
+            <div id="loading-overlay" class="loading-overlay">
+                <div class="spinner"></div>
+                <p>Fetching Data...</p>
+            </div>
+
+            <section id="overview-tab" class="tab-content active">
+                <div class="stats-grid" id="stats-summary">
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-details">
+                            <p>Total Gross</p>
+                            <h3 id="total-gross-val">0.00</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-details">
+                            <p>Total Tellers</p>
+                            <h3 id="total-tellers-val">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="stat-details">
+                            <p>Avg Daily Gross</p>
+                            <h3 id="avg-daily-val">0.00</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container card">
+                    <div class="card-header">
+                        <h3>Daily Performance Trend</h3>
+                        <div class="chart-legend" id="chart-legend"></div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="grossChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="groups-grid" id="groups-container">
+                    <!-- Unit summary cards will be injected here -->
+                </div>
+            </section>
+
+            <section id="details-tab" class="tab-content">
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3>Detailed Breakdown</h3>
+                        <div class="search-box">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="teller-search" placeholder="Search tellers...">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="details-table">
+                            <thead>
+                                <tr id="table-head-row">
+                                    <th>Teller</th>
+                                    <th>Unit</th>
+                                    <!-- Dynamic date columns -->
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Data injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <section id="comparison-tab" class="tab-content">
+                <div class="comparison-grid">
+                    <div class="card comparison-card">
+                        <div class="card-header">
+                            <h3>Period Comparison (Current 7 Days vs Previous 7 Days)</h3>
+                        </div>
+                        <div class="comparison-stats">
+                            <div class="comp-stat">
+                                <span class="comp-label" id="prev-period-label">Previous 7 Days</span>
+                                <h4 id="prev-period-total">0.00</h4>
+                            </div>
+                            <div class="comp-divider">
+                                <div class="vs-badge">VS</div>
+                            </div>
+                            <div class="comp-stat">
+                                <span class="comp-label" id="curr-period-label">Current 7 Days</span>
+                                <h4 id="curr-period-total">0.00</h4>
+                            </div>
+                        </div>
+                        <div class="growth-indicator" id="growth-badge">
+                            <span id="growth-percent">0%</span>
+                            <span id="growth-text">Growth</span>
+                        </div>
+                    </div>
+
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3>Daily Comparison Chart</h3>
+                        </div>
+                        <div class="canvas-wrapper">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3>Unit Performance Shift</h3>
+                    </div>
+                    <div class="table-container">
+                        <table id="unit-comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Unit / Supervisor</th>
+                                    <th class="text-right">Previous 7 Days</th>
+                                    <th class="text-right">Current 7 Days</th>
+                                    <th class="text-right">Change</th>
+                                    <th class="text-right">Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unit-comparison-body">
+                                <!-- Comparison rows injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
