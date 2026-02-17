@@ -30,6 +30,12 @@ body {
     color: var(--text-primary);
     font-family: var(--font-main);
     overflow-x: hidden;
+
+    /* Mobile App Tweaks */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .app-container {
@@ -47,7 +53,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2rem;
+    padding: env(safe-area-inset-top) 2rem 0;
     position: fixed;
     top: 0;
     left: 0;
@@ -746,6 +752,54 @@ tr:hover td {
     color: #ef4444;
 }
 
+/* Mobile Navigation Bar */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: var(--sidebar-bg);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-color);
+    padding: 0 1.5rem;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1001;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.65rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    min-width: 60px;
+}
+
+.mobile-nav-item svg {
+    width: 22px;
+    height: 22px;
+    opacity: 0.7;
+}
+
+.mobile-nav-item.active {
+    color: var(--accent-purple);
+}
+
+.mobile-nav-item.active svg {
+    opacity: 1;
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .nav-center {
@@ -758,17 +812,98 @@ tr:hover td {
 }
 
 @media (max-width: 768px) {
+    .main-content {
+        padding: 1.5rem;
+        margin-top: 72px;
+        padding-bottom: 90px;
+    }
+
     .top-bar {
         flex-direction: column;
         gap: 1rem;
+        margin-bottom: 2rem;
     }
 
-    .header-actions {
-        width: 100%;
+    .header-info h1 {
+        font-size: 1.5rem;
     }
 
-    .date-range-badge {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .mobile-nav {
+        display: flex;
+    }
+
+    .nav-right .sync-info {
+        display: none;
+    }
+
+    .logo-text-group {
+        display: none;
+    }
+
+    .logout-pill span {
+        display: none;
+    }
+
+    .logout-pill {
+        padding: 0.6rem;
+    }
+
+    .chart-container {
+        padding: 1rem;
+        height: 300px;
+    }
+
+    .canvas-wrapper {
+        height: 220px;
+    }
+
+    .table-container {
+        border-radius: 12px;
+        margin: 0 -0.5rem;
+    }
+
+    th,
+    td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .group-card {
+        padding: 1rem;
+    }
+
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .comparison-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .comp-divider {
         width: 100%;
-        text-align: center;
+        height: 1px;
+    }
+
+    .comp-divider::before {
+        width: 100%;
+        height: 1px;
+    }
+
+    .vs-badge {
+        position: static;
+        width: fit-content;
+        margin: 0.5rem auto;
+        transform: none;
+    }
+
+    .comp-divider {
+        display: none;
     }
 }

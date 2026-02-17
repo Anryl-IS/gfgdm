@@ -48,7 +48,7 @@ function setupLogout() {
 }
 
 function setupTabSwitching() {
-    const navItems = document.querySelectorAll('.nav-item');
+    const navItems = document.querySelectorAll('.nav-item, .mobile-nav-item');
     const tabs = document.querySelectorAll('.tab-content');
 
     navItems.forEach(item => {
@@ -56,8 +56,14 @@ function setupTabSwitching() {
             e.preventDefault();
             const targetTab = item.getAttribute('data-tab');
 
-            navItems.forEach(ni => ni.classList.remove('active'));
-            item.classList.add('active');
+            // Sync all nav items
+            navItems.forEach(ni => {
+                if (ni.getAttribute('data-tab') === targetTab) {
+                    ni.classList.add('active');
+                } else {
+                    ni.classList.remove('active');
+                }
+            });
 
             tabs.forEach(tab => {
                 tab.classList.remove('active');
