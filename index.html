@@ -16,30 +16,14 @@
 </head>
 
 <body>
-    <div id="login-screen" class="login-overlay">
-        <div class="login-card">
-            <div class="login-logo">
-                <div class="logo-icon">GF</div>
-                <span class="logo-text">Glowing<span>Fortune</span></span>
-            </div>
-            <h2>LDS Gross Reports</h2>
-            <p>Please enter your credentials to access the dashboard</p>
-            <form id="login-form">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="username" placeholder="Enter username" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="Enter password" required>
-                </div>
-                <button type="submit" class="login-submit">Login Account</button>
-            </form>
-            <div id="login-error" class="login-error">Invalid username or password.</div>
-        </div>
-    </div>
+    <script>
+        // Immediate auth check to prevent flicker
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
 
-    <div class="app-container" style="display: none;">
+    <div class="app-container">
         <nav class="top-nav">
             <div class="nav-left">
                 <div class="logo">
@@ -108,7 +92,7 @@
         </nav>
 
         <main class="main-content">
-            <header class="top-bar">
+            <header class="top-bar animate-up">
                 <div class="header-info">
                     <h1>Glowing Fortune OPC</h1>
                     <p class="subtitle">LDS Daily Gross Tracking Dashboard</p>
@@ -119,13 +103,21 @@
             </header>
 
             <div id="loading-overlay" class="loading-overlay">
-                <div class="spinner"></div>
-                <p>Fetching Data...</p>
+                <div class="loader-panel">
+                    <div class="spinner"></div>
+                    <div class="loader-info">
+                        <p id="loading-status">Establishing Secure Connection...</p>
+                        <span id="loading-percent">0%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div id="progress-bar" class="progress-fill"></div>
+                    </div>
+                </div>
             </div>
 
             <section id="overview-tab" class="tab-content active">
                 <div class="stats-grid" id="stats-summary">
-                    <div class="stat-card">
+                    <div class="stat-card animate-scale" style="animation-delay: 0.1s; opacity: 0;">
                         <div class="stat-icon purple">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -139,7 +131,7 @@
                             <h3 id="total-gross-val">0.00</h3>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card animate-scale" style="animation-delay: 0.2s; opacity: 0;">
                         <div class="stat-icon blue">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -155,7 +147,7 @@
                             <h3 id="total-tellers-val">0</h3>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card animate-scale" style="animation-delay: 0.3s; opacity: 0;">
                         <div class="stat-icon green">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -170,7 +162,7 @@
                     </div>
                 </div>
 
-                <div class="chart-container card">
+                <div class="chart-container card animate-up" style="animation-delay: 0.4s; opacity: 0;">
                     <div class="card-header">
                         <h3>Daily Performance Trend</h3>
                         <div class="chart-legend" id="chart-legend"></div>

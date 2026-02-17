@@ -17,25 +17,11 @@ let dashboardData = {
 let chartInstance = null;
 let comparisonChartInstance = null;
 
-// Simple Hardcoded Credentials for demo
-const AUTH = {
-    user: 'admin',
-    pass: '1234'
-};
-
+// Initial application state
 document.addEventListener('DOMContentLoaded', () => {
-    checkSession();
     initApp();
 });
 
-function checkSession() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (isLoggedIn) {
-        showDashboard();
-    } else {
-        setupLogin();
-    }
-}
 
 async function initApp() {
     setupTabSwitching();
@@ -48,37 +34,16 @@ async function initApp() {
     }
 }
 
-function setupLogin() {
-    const loginForm = document.getElementById('login-form');
-    const loginError = document.getElementById('login-error');
-
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const user = document.getElementById('username').value;
-        const pass = document.getElementById('password').value;
-
-        if (user === AUTH.user && pass === AUTH.pass) {
-            localStorage.setItem('isLoggedIn', 'true');
-            showDashboard();
-            fetchData();
-        } else {
-            loginError.style.display = 'block';
-            setTimeout(() => {
-                loginError.style.display = 'none';
-            }, 3000);
-        }
-    });
-}
-
-function showDashboard() {
-    document.getElementById('login-screen').style.display = 'none';
-    document.querySelector('.app-container').style.display = 'flex';
-}
 
 function setupLogout() {
     document.getElementById('logout-btn').addEventListener('click', () => {
-        localStorage.removeItem('isLoggedIn');
-        window.location.reload();
+        const appContainer = document.querySelector('.app-container');
+        appContainer.classList.add('exit-animation');
+
+        setTimeout(() => {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }, 600);
     });
 }
 
@@ -123,9 +88,13 @@ async function fetchData() {
 
     for (let i = 0; i < PROXIES.length; i++) {
         try {
+            const progress = 10 + (i * 25);
+            setProgress(progress, `Attempting Data Connection (Node ${i + 1})...`);
             console.log(`Trying Proxy ${i + 1}...`);
             const proxyUrl = PROXIES[i](SHEET_URL);
             const response = await fetch(proxyUrl);
+
+            setProgress(progress + 15, 'Handshaking with Data Server...');
 
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -138,6 +107,7 @@ async function fetchData() {
             }
 
             if (csvText && csvText.length > 50) {
+                setProgress(90, 'Filtering & Structuring Dataset...');
                 Papa.parse(csvText, {
                     complete: (results) => {
                         processCSV(results.data);
@@ -293,9 +263,11 @@ function renderUnitCards() {
     const container = document.getElementById('groups-container');
     container.innerHTML = '';
 
-    dashboardData.units.forEach(unit => {
+    dashboardData.units.forEach((unit, index) => {
         const card = document.createElement('div');
-        card.className = 'group-card';
+        card.className = 'group-card animate-up';
+        card.style.animationDelay = `${0.3 + (index * 0.1)}s`;
+        card.style.opacity = '0';
 
         // Pick top performers for the card summary
         const topTellers = [...unit.tellers]
@@ -340,9 +312,12 @@ function renderTable() {
 
     // Populate rows
     body.innerHTML = '';
-    dashboardData.units.forEach(unit => {
-        unit.tellers.forEach(teller => {
+    dashboardData.units.forEach((unit, uIdx) => {
+        unit.tellers.forEach((teller, tIdx) => {
             const tr = document.createElement('tr');
+            tr.className = 'animate-fade';
+            tr.style.animationDelay = `${0.2 + (tIdx * 0.05)}s`;
+            tr.style.opacity = '0';
             tr.innerHTML = `
                 <td><strong>${teller.name}</strong></td>
                 <td><span class="badge">${unit.name}</span></td>
@@ -375,7 +350,29 @@ function formatCurrency(val) {
 }
 
 function showLoading(show) {
-    document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+    const loader = document.getElementById('loading-overlay');
+    if (show) {
+        setProgress(0, 'Initializing Security Protocol...');
+        loader.style.display = 'flex';
+        loader.style.opacity = '1';
+    } else {
+        setProgress(100, 'Data Synchronization Complete');
+        loader.style.transition = 'opacity 0.5s ease-out';
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500);
+    }
+}
+
+function setProgress(percent, status) {
+    const bar = document.getElementById('progress-bar');
+    const statusText = document.getElementById('loading-status');
+    const percentText = document.getElementById('loading-percent');
+
+    if (bar) bar.style.width = `${percent}%`;
+    if (statusText) statusText.textContent = status;
+    if (percentText) percentText.textContent = `${Math.round(percent)}%`;
 }
 
 function updateSyncTime() {
@@ -477,8 +474,11 @@ function renderComparison() {
     const tableBody = document.getElementById('unit-comparison-body');
     tableBody.innerHTML = '';
 
-    unitComparisonData.sort((a, b) => b.curr - a.curr).forEach(data => {
+    unitComparisonData.sort((a, b) => b.curr - a.curr).forEach((data, index) => {
         const tr = document.createElement('tr');
+        tr.className = 'animate-fade';
+        tr.style.animationDelay = `${0.3 + (index * 0.05)}s`;
+        tr.style.opacity = '0';
         tr.innerHTML = `
             <td><strong>${data.name}</strong></td>
             <td class="text-right">${formatCurrency(data.prev)}</td>
