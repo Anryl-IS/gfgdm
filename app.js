@@ -266,8 +266,7 @@ function renderUnitCards() {
     dashboardData.units.forEach((unit, index) => {
         const card = document.createElement('div');
         card.className = 'group-card animate-up';
-        card.style.animationDelay = `${0.3 + (index * 0.1)}s`;
-        card.style.opacity = '0';
+        card.style.animationDelay = `${Math.min(0.3 + (index * 0.1), 1.5)}s`;
 
         // Pick top performers for the card summary
         const topTellers = [...unit.tellers]
@@ -316,8 +315,7 @@ function renderTable() {
         unit.tellers.forEach((teller, tIdx) => {
             const tr = document.createElement('tr');
             tr.className = 'animate-fade';
-            tr.style.animationDelay = `${0.2 + (tIdx * 0.05)}s`;
-            tr.style.opacity = '0';
+            tr.style.animationDelay = `${Math.min(0.1 + (tIdx * 0.03), 1.2)}s`;
             tr.innerHTML = `
                 <td><strong>${teller.name}</strong></td>
                 <td><span class="badge">${unit.name}</span></td>
@@ -477,8 +475,7 @@ function renderComparison() {
     unitComparisonData.sort((a, b) => b.curr - a.curr).forEach((data, index) => {
         const tr = document.createElement('tr');
         tr.className = 'animate-fade';
-        tr.style.animationDelay = `${0.3 + (index * 0.05)}s`;
-        tr.style.opacity = '0';
+        tr.style.animationDelay = `${Math.min(0.2 + (index * 0.05), 1)}s`;
         tr.innerHTML = `
             <td><strong>${data.name}</strong></td>
             <td class="text-right">${formatCurrency(data.prev)}</td>
